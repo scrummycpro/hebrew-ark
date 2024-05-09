@@ -1,0 +1,60 @@
+# Random Hebrew Vocab
+
+curl --request GET \
+     --url https://www.sefaria.org/api/texts/random-by-topic \
+     --header 'accept: application/json'
+
+
+# Hebrew Topics
+
+curl --request GET \
+     --url https://www.sefaria.org/api/topics \
+     --header 'accept: application/json'
+
+
+# Random Hebrew Text
+
+curl --request GET \
+     --url https://www.sefaria.org/api/texts/random \
+     --header 'accept: application/json'
+
+
+# Name search
+## example demon - chnage to your choice
+curl --request GET \
+     --url https://www.sefaria.org/api/name/demon \
+     --header 'accept: application/json'
+
+
+# Search by topic
+## Example is Torrah - change to what you want
+
+curl --request GET \
+     --url https://www.sefaria.org/api/v2/topics/torah \
+     --header 'accept: application/json'
+
+
+# A Hebrew Reading Calendar
+
+curl --request GET \
+     --url https://www.sefaria.org/api/calendars \
+     --header 'accept: application/json'
+
+
+# Parasha
+## Bereshit, The Parasha must be replaced, hcal and hdate can give a list
+
+
+
+curl --request GET \
+     --url https://www.sefaria.org/api/calendars/next-read/Bereshit \
+     --header 'accept: application/json'
+
+
+# pictures of Manuscripts - similar to esoterica 
+
+## Replace Genesis with the Bible chapter
+
+curl --request GET \
+     --url https://www.sefaria.org/api/manuscripts/Genesis \
+     --header 'accept: Manuscript JSON'
