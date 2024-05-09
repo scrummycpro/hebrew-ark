@@ -15,7 +15,7 @@ curl --request GET \
 # Random Hebrew Text
 
 curl --request GET \
-     --url https://www.sefaria.org/api/texts/random \
+     --url https://www.sefaria.org/api/texts/random-by-topic \
      --header 'accept: application/json'
 
 
@@ -58,3 +58,11 @@ curl --request GET \
 curl --request GET \
      --url https://www.sefaria.org/api/manuscripts/Genesis \
      --header 'accept: Manuscript JSON'
+
+# Searching by name
+
+## Replace Demon with desired word
+
+curl --request GET \
+     --url https://www.sefaria.org/api/name/demon \
+     --header 'accept: application/json'
