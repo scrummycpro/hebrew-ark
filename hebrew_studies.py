@@ -5,7 +5,7 @@ from datetime import datetime
 import subprocess
 import json
 
-def save_to_database(timestamp, hebrew_topic):
+def save_to_database(timestamp, hebrew_topic, calendar_data):
     try:
         # Connect to the SQLite database
         conn = sqlite3.connect('hebrew_studies.db')
@@ -15,11 +15,13 @@ def save_to_database(timestamp, hebrew_topic):
         cursor.execute('''CREATE TABLE IF NOT EXISTS commands (
                             id INTEGER PRIMARY KEY,
                             timestamp TEXT,
-                            hebrew_topic TEXT
+                            hebrew_topic TEXT,
+                            calendar_data TEXT
                         )''')
 
-        # Insert timestamp and Hebrew topic into the table
-        cursor.execute("INSERT INTO commands (timestamp, hebrew_topic) VALUES (?, ?)", (timestamp, hebrew_topic))
+        # Insert timestamp, Hebrew topic, and calendar data into the table
+        cursor.execute("INSERT INTO commands (timestamp, hebrew_topic, calendar_data) VALUES (?, ?, ?)",
+                       (timestamp, hebrew_topic, calendar_data))
         conn.commit()
 
         # Close the connection
@@ -28,32 +30,36 @@ def save_to_database(timestamp, hebrew_topic):
         messagebox.showerror("Error", f"An error occurred: {e}")
 
 def execute_command():
-    # Define the command
-    command = "curl --request GET --url https://www.sefaria.org/api/texts/random-by-topic --header 'accept: application/json'"
+    # Define the commands
+    hebrew_command = "curl --request GET --url https://www.sefaria.org/api/texts/random-by-topic --header 'accept: application/json'"
+    calendar_command = "curl --request GET --url https://www.sefaria.org/api/calendars --header 'accept: application/json'"
 
-    # Execute the command
     try:
-        result = subprocess.run(command.split(), capture_output=True, text=True)
-        json_result = json.loads(result.stdout)
+        # Execute the Hebrew topic command
+        hebrew_result = subprocess.run(hebrew_command.split(), capture_output=True, text=True)
+        hebrew_json_result = json.loads(hebrew_result.stdout)
 
-        # Extract timestamp and Hebrew topic from the JSON result
+        # Execute the calendar command
+        calendar_result = subprocess.run(calendar_command.split(), capture_output=True, text=True)
+        calendar_json_result = json.loads(calendar_result.stdout)
+
+        # Extract data from the results
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        hebrew_topic = json_result.get('topic', {}).get('primaryTitle', {}).get('he', 'Unknown')
+        hebrew_topic = hebrew_json_result.get('topic', {}).get('primaryTitle', {}).get('he', 'Unknown')
+        calendar_data = json.dumps(calendar_json_result, ensure_ascii=False, indent=4)
 
-        # Save timestamp and Hebrew topic to the database
-        save_to_database(timestamp, hebrew_topic)
+        # Save data to the database
+        save_to_database(timestamp, hebrew_topic, calendar_data)
 
-        # Display the command
-        command_label.config(text=command)
-
-        # Display the result
+        # Display the results
+        command_label.config(text="Study This today")
         result_text.config(state=tk.NORMAL)
         result_text.delete("1.0", tk.END)
-        decoded_result = json.dumps(json_result, indent=4, ensure_ascii=False)
-        result_text.insert(tk.END, decoded_result)
+        decoded_hebrew_result = json.dumps(hebrew_json_result, indent=4, ensure_ascii=False)
+        result_text.insert(tk.END, f"Hebrew Topic Data:\n{decoded_hebrew_result}\n\nCalendar Data:\n{calendar_data}")
         result_text.config(state=tk.DISABLED)
     except Exception as e:
-        messagebox.showerror("Error", f"An error occurred while executing the command: {e}")
+        messagebox.showerror("Error", f"An error occurred while executing the commands: {e}")
 
 def save_as_json():
     try:
